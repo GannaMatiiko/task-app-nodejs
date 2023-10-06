@@ -5,6 +5,64 @@ const { userOne, userOneId, setupDatabase} = require('./fixtures/db')
 
 beforeEach(setupDatabase)
 
+test('Should not signup user with invalid name', async () => {
+    await request(app)
+        .post('/users')
+        .send({
+            name: ['Anna']
+        })
+        .expect(400)
+})
+
+test('Should not signup user with invalid email', async () => {
+    await request(app)
+        .post('/users')
+        .send({
+            email: 'anna.com'
+        })
+        .expect(400)
+})
+
+test('Should not signup user with invalid password', async () => {
+    await request(app)
+        .post('/users')
+        .send({
+            email: 'pes'
+        })
+        .expect(400)
+})
+
+
+test('Should not update user with invalid name', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            name: ['Anna']
+        })
+        .expect(400)
+})
+
+test('Should not update user with invalid email', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            email: 'anna.com'
+        })
+        .expect(400)
+})
+
+test('Should not update user with invalid password', async () => {
+    await request(app)
+        .patch('/users/me')
+        .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+        .send({
+            email: 'pes'
+        })
+        .expect(400)
+})
+
 test('Should signup a new user', async () => {
     const response = await request(app).post('/users').send({
         name: 'Ann',
@@ -70,6 +128,14 @@ test('Should delete account for user', async () => {
     expect(user).toBeNull()
 })
 
+test('Should not update user if unauthenticated', async () => {
+    await request(app)
+        .patch('/users/me')
+        .send({
+            name: 'Henry'
+        })
+        .expect(401)
+})
 
 test('Should not delete account for unauthenticated user', async () => {
     await request(app)
